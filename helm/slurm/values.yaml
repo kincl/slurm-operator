@@ -60,6 +60,20 @@ jwt:
     existingSecret: ""
 
 #
+# Set extra storage for controller and nodesets
+extraStorage:
+  volumes:
+    []
+    # - name: home
+    #   persistentVolumeClaim:
+    #     claimName: user-homearea
+
+  volumeMounts:
+    []
+    # - name: home
+    #   mountPath: /home
+
+#
 # Slurm configurations.
 slurm:
   #

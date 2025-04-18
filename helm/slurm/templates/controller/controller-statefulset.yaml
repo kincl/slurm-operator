@@ -87,6 +87,9 @@ spec:
               mountPath: /run/slurmctld
             - name: {{ include "slurm.controller.statesave.name" . }}
               mountPath: {{ include "slurm.controller.statesavePath" . }}
+            {{- if .Values.extraStorage.volumeMounts }}
+              {{- toYaml .Values.extraStorage.volumeMounts | nindent 12 }}
+            {{- end }}{{- /* if .Values.extraStorage.volumeMounts */}}
         - name: reconfigure
           image: {{ include "slurm.authcred.imageRef" . }}
           imagePullPolicy: {{ .Values.authcred.imagePullPolicy | default (include "slurm.imagePullPolicy" .) }}
@@ -135,6 +138,9 @@ spec:
         - name: {{ include "slurm.controller.statesave.name" . }}
           emptyDir: {}
         {{- end }}{{- /* if and .Values.controller.persistence.enabled .Values.controller.persistence.existingClaim */}}
+        {{- if .Values.extraStorage.volumes }}
+          {{- toYaml .Values.extraStorage.volumes | nindent 8 }}
+        {{- end }}{{- /* if .Values.extraStorage.volumes */}}
   {{- if and .Values.controller.persistence.enabled (not .Values.controller.persistence.existingClaim) }}
   volumeClaimTemplates:
     - metadata:

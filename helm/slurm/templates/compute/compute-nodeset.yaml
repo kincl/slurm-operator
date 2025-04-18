@@ -164,6 +164,9 @@ spec:
             - name: {{ $vol.name }}
               mountPath: {{ $vol.mountPath | default (printf "/mnt/%s" $vol.name ) }}
             {{- end }}{{- /* range $vol := $nodeset.volumes */}}
+            {{- if $.Values.extraStorage.volumeMounts }}
+              {{- toYaml $.Values.extraStorage.volumeMounts | nindent 12 }}
+            {{- end }}{{- /* if $.Values.extraStorage.volumeMounts */}}
       {{- with $nodeset.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
@@ -182,6 +185,9 @@ spec:
         {{- if $nodeset.volumes }}
         {{- $nodeset.volumes | toYaml | nindent 8 }}
         {{- end }}{{- /* if $nodeset.volumes */}}
+        {{- if $.Values.extraStorage.volumes }}
+          {{- toYaml $.Values.extraStorage.volumes | nindent 8 }}
+        {{- end }}{{- /* if $.Values.extraStorage.volumes */}}
   {{- if $nodeset.volumeClaimTemplates }}
   volumeClaimTemplates:
     {{- $nodeset.volumeClaimTemplates | toYaml | nindent 4 }}
