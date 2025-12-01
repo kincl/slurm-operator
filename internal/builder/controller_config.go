@@ -127,8 +127,11 @@ func (b *Builder) BuildControllerConfig(controller *slinkyv1beta1.Controller) (*
 	}
 
 	opts := ConfigMapOpts{
-		Key:      controller.ConfigKey(),
-		Metadata: controller.Spec.Template.PodMetadata,
+		Key: controller.ConfigKey(),
+		Metadata: slinkyv1beta1.Metadata{
+			Annotations: controller.Annotations,
+			Labels:      structutils.MergeMaps(controller.Labels, labels.NewBuilder().WithControllerLabels(controller).Build()),
+		},
 		Data: map[string]string{
 			slurmConfFile: buildSlurmConf(
 				controller, accounting, nodesetList,
@@ -140,8 +143,6 @@ func (b *Builder) BuildControllerConfig(controller *slinkyv1beta1.Controller) (*
 	if !hasCgroupConfFile {
 		opts.Data[cgroupConfFile] = buildCgroupConf()
 	}
-
-	opts.Metadata.Labels = structutils.MergeMaps(opts.Metadata.Labels, labels.NewBuilder().WithControllerLabels(controller).Build())
 
 	return b.BuildConfigMap(opts, controller)
 }
@@ -307,7 +308,7 @@ func (b *Builder) BuildControllerConfigExternal(controller *slinkyv1beta1.Contro
 
 	opts := ConfigMapOpts{
 		Key:      controller.ConfigKey(),
-		Metadata: controller.Spec.Template.PodMetadata,
+		Metadata: controller.Spec.Template.Metadata,
 		Data: map[string]string{
 			slurmConfFile: buildSlurmConfMinimal(controller, accounting),
 		},

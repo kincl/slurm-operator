@@ -36,7 +36,9 @@ func (b *Builder) BuildWorkerPodTemplate(nodeset *slinkyv1beta1.NodeSet, control
 	key := nodeset.Key()
 
 	objectMeta := metadata.NewBuilder(key).
-		WithMetadata(nodeset.Spec.Template.PodMetadata).
+		WithAnnotations(nodeset.Annotations).
+		WithLabels(nodeset.Labels).
+		WithMetadata(nodeset.Spec.Template.Metadata).
 		WithLabels(labels.NewBuilder().WithWorkerLabels(nodeset).Build()).
 		WithAnnotations(map[string]string{
 			annotationDefaultContainer: labels.WorkerApp,

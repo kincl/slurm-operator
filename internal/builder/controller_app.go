@@ -41,7 +41,9 @@ func (b *Builder) BuildController(controller *slinkyv1beta1.Controller) (*appsv1
 		WithControllerSelectorLabels(controller).
 		Build()
 	objectMeta := metadata.NewBuilder(key).
-		WithMetadata(controller.Spec.Template.PodMetadata).
+		WithAnnotations(controller.Annotations).
+		WithLabels(controller.Labels).
+		WithMetadata(controller.Spec.Template.Metadata).
 		WithLabels(labels.NewBuilder().WithControllerLabels(controller).Build()).
 		Build()
 
@@ -125,7 +127,9 @@ func (b *Builder) controllerPodTemplate(controller *slinkyv1beta1.Controller) (c
 	}
 
 	objectMeta := metadata.NewBuilder(key).
-		WithMetadata(controller.Spec.Template.PodMetadata).
+		WithAnnotations(controller.Annotations).
+		WithLabels(controller.Labels).
+		WithMetadata(controller.Spec.Template.Metadata).
 		WithLabels(labels.NewBuilder().WithControllerLabels(controller).Build()).
 		WithAnnotations(map[string]string{
 			annotationDefaultContainer: labels.ControllerApp,
