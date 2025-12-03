@@ -43,12 +43,13 @@ func init() {
 
 // Input flags to the command
 type Flags struct {
-	enableLeaderElection bool
-	serverAddr           string
-	probeAddr            string
-	metricsAddr          string
-	secureMetrics        bool
-	enableHTTP2          bool
+	enableLeaderElection    bool
+	leaderElectionNamespace string
+	serverAddr              string
+	probeAddr               string
+	metricsAddr             string
+	secureMetrics           bool
+	enableHTTP2             bool
 }
 
 func parseFlags(flags *Flags) {
@@ -77,12 +78,20 @@ func parseFlags(flags *Flags) {
 		("Enable leader election for controller manager. " +
 			"Enabling this will ensure there is only one active controller manager."),
 	)
+	flag.StringVar(
+		&flags.leaderElectionNamespace,
+		"leader-elect-namespace",
+		"",
+		"Determines the namespace in which the leader election resource will be created.",
+	)
 	flag.BoolVar(&flags.secureMetrics, "metrics-secure", false,
 		"If set the metrics endpoint is served securely")
 	flag.BoolVar(&flags.enableHTTP2, "enable-http2", false,
 		"If set, HTTP/2 will be enabled for the metrics and webhook servers")
 	flag.Parse()
 }
+
+// +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;create;update;patch
 
 func main() {
 	var flags Flags
@@ -131,8 +140,9 @@ func main() {
 		}),
 		HealthProbeBindAddress:        flags.probeAddr,
 		LeaderElection:                flags.enableLeaderElection,
-		LeaderElectionID:              "0033bda7.slinky.slurm.net",
+		LeaderElectionID:              "slurm-operator-webhook",
 		LeaderElectionReleaseOnCancel: true,
+		LeaderElectionNamespace:       flags.leaderElectionNamespace,
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
