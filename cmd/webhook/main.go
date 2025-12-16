@@ -91,6 +91,7 @@ func parseFlags(flags *Flags) {
 	flag.Parse()
 }
 
+// +kubebuilder:rbac:groups="",resources=events,verbs=get;list;create;update;patch;watch
 // +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;create;update;patch
 
 func main() {
@@ -181,6 +182,12 @@ func main() {
 	}
 	if err = (&slinkywebhook.TokenWebhook{}).SetupWebhookWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create webhook", "webhook", "Token")
+		os.Exit(1)
+	}
+	if err = (&slinkywebhook.PodBindingWebhook{
+		Client: mgr.GetClient(),
+	}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "pods/binding")
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder
