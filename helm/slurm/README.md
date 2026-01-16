@@ -50,6 +50,7 @@ Kubernetes: `>= 1.29.0-0`
 | accounting.storageConfig.passwordKeyRef | secretKeyRef | `{"key":"password","name":"mariadb-password"}` | The password used to connect to the database, from secret reference. Ref: https://slurm.schedmd.com/slurmdbd.conf.html#OPT_StoragePass |
 | accounting.storageConfig.port | int | `3306` | The port number to communicate with the database with. Ref: https://slurm.schedmd.com/slurmdbd.conf.html#OPT_StoragePort |
 | accounting.storageConfig.username | string | `"slurm"` | The name of the user used to connect to the database with. Ref: https://slurm.schedmd.com/slurmdbd.conf.html#OPT_StorageUser |
+| asciiArt | bool | `true` | Toggle ASCII art in Helm installation notes. |
 | clusterName | string | `nil` | The cluster name, which uniquely identifies the Slurm cluster. If empty, one will be derived from the Controller CR object. Ref: https://slurm.schedmd.com/slurm.conf.html#OPT_ClusterName |
 | configFiles | map[string]string | `{}` | Extra Slurm config files to be mounted to `/etc/slurm`. Ref: https://slurm.schedmd.com/man_index.html#configuration_files |
 | controller.external | bool | `false` | Configures this component as external (not in Kubernetes). |
@@ -118,8 +119,8 @@ Kubernetes: `>= 1.29.0-0`
 | nameOverride | string | `nil` | Overrides the name of the release. |
 | namespaceOverride | string | `nil` | Overrides the namespace of the release. |
 | nodesets.slinky.enabled | bool | `true` | Enable use of this NodeSet. |
-| nodesets.slinky.extraConf | string | `nil` | Raw extra configuration added to the `--conf` argument. Ref: https://slurm.schedmd.com/slurm.conf.html#SECTION_NODE-CONFIGURATION |
-| nodesets.slinky.extraConfMap | map[string]string \| map[string][]string | `{}` | Extra configuration added to the `--conf` argument. If `extraConf` is not empty, it takes precedence. Ref: https://slurm.schedmd.com/slurm.conf.html#SECTION_NODE-CONFIGURATION |
+| nodesets.slinky.extraConf | string | `nil` | Raw extra configuration added to the `--conf` argument. Ref: https://slurm.schedmd.com/slurmd.html#OPT_conf-%3Cnode-parameters%3E Ref: https://slurm.schedmd.com/slurm.conf.html#SECTION_NODE-CONFIGURATION |
+| nodesets.slinky.extraConfMap | map[string]string \| map[string][]string | `{}` | Extra configuration added to the `--conf` option. If `extraConf` is not empty, it takes precedence. Ref: https://slurm.schedmd.com/slurmd.html#OPT_conf-%3Cnode-parameters%3E Ref: https://slurm.schedmd.com/slurm.conf.html#SECTION_NODE-CONFIGURATION |
 | nodesets.slinky.logfile.image | object | `{"repository":"docker.io/library/alpine","tag":"latest"}` | The image to use, `${repository}:${tag}`. Ref: https://kubernetes.io/docs/concepts/containers/images/#image-names |
 | nodesets.slinky.logfile.resources | object | `{}` | The container resource limits and requests. Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-requests-and-limits-of-pod-and-container |
 | nodesets.slinky.metadata | object | `{}` | Labels and annotations. Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/ |
@@ -150,7 +151,11 @@ Kubernetes: `>= 1.29.0-0`
 | partitions.all.configMap | map[string]string \| map[string][]string | `{"Default":"YES","MaxTime":"UNLIMITED","State":"UP"}` | The Slurm partition configuration options added to the partition line. If `config` is not empty, it takes precedence. Ref: https://slurm.schedmd.com/slurm.conf.html#SECTION_PARTITION-CONFIGURATION |
 | partitions.all.enabled | bool | `true` | Enable this partition to be defined in Slurm config. |
 | partitions.all.nodesets | list | `["ALL"]` | List of NodeSets to be associated with this partition. Ref: https://slurm.schedmd.com/slurm.conf.html#OPT_Nodes_1 |
-| priorityClass | object | `{"create":true,"name":"slurm-priority-critical","preemptionPolicy":"PreemptLowerPriority","value":1000000000}` | Set the priority class to use. Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#priorityclass |
+| priorityClass.create | bool | `true` | The priority class will be created when true. |
+| priorityClass.description | string | `nil` | Description for the PriorityClass. |
+| priorityClass.name | string | `"slurm-system-critical"` | The name of the priority class to (create and) use. |
+| priorityClass.preemptionPolicy | string | `"PreemptLowerPriority"` | The preemption policy upon creation. One of: `PreemptLowerPriority`; `Never`. |
+| priorityClass.value | int | `1000000000` | The priority value upon creation. |
 | prologScripts | map[string]string | `{}` | The Slurm Prolog scripts ran on all NodeSets. The map key represents the filename; the map value represents the script contents. WARNING: The script must include a shebang (!) so it can be executed correctly by Slurm. Ref: https://slurm.schedmd.com/slurm.conf.html#OPT_Prolog Ref: https://slurm.schedmd.com/prolog_epilog.html Ref: https://en.wikipedia.org/wiki/Shebang_(Unix) |
 | prologSlurmctldScripts | map[string]string | `{}` | The Slurm PrologSlurmctld scripts run on slurmctld at job allocation. The map key represents the filename; the map value represents the script contents. WARNING: The script must include a shebang (!) so it can be executed correctly by Slurm. Ref: https://slurm.schedmd.com/slurm.conf.html#OPT_PrologSlurmctld Ref: https://slurm.schedmd.com/prolog_epilog.html Ref: https://en.wikipedia.org/wiki/Shebang_(Unix) |
 | restapi.metadata | object | `{}` | Labels and annotations. Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/ |

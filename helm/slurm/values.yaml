@@ -1,5 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (C) SchedMD LLC.
-# SPDX-License-Identifier: Apache-2.0
+---
 
 # -- Overrides the name of the release.
 nameOverride: null
@@ -10,6 +9,9 @@ fullnameOverride: null
 # -- Overrides the namespace of the release.
 namespaceOverride: null
 
+# -- Toggle ASCII art in Helm installation notes.
+asciiArt: true
+
 # -- Set the secrets for image pull.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
@@ -19,13 +21,19 @@ imagePullSecrets: []
 # Ref: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy
 imagePullPolicy: IfNotPresent
 
-# -- Set the priority class to use.
+# Configure the priority class used by all Slurm components.
 # Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#priorityclass
 priorityClass:
+  # -- The priority class will be created when true.
   create: true
-  name: slurm-priority-critical
+  # -- The name of the priority class to (create and) use.
+  name: slurm-system-critical
+  # -- Description for the PriorityClass.
+  description: null
+  # -- The priority value upon creation.
   value: 1000000000
-  preemptionPolicy: PreemptLowerPriority # or Never
+  # -- The preemption policy upon creation. One of: `PreemptLowerPriority`; `Never`.
+  preemptionPolicy: PreemptLowerPriority
 
 # -- (secretKeyRef) Slurm shared authentication key.
 # If empty, one will be generated and used.
@@ -640,7 +648,7 @@ nodesets:
       # -- The container resource limits and requests.
       # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-requests-and-limits-of-pod-and-container
       resources: {}
-        # requests:
+        # limits:
         #   cpu: 1
         #   memory: 1Gi
       # -- List of volume mounts to use.
@@ -662,10 +670,12 @@ nodesets:
         #   cpu: 500m
         #   memory: 128Mi
     # -- (string) Raw extra configuration added to the `--conf` argument.
+    # Ref: https://slurm.schedmd.com/slurmd.html#OPT_conf-%3Cnode-parameters%3E
     # Ref: https://slurm.schedmd.com/slurm.conf.html#SECTION_NODE-CONFIGURATION
     extraConf: null
-    # -- (map[string]string \| map[string][]string) Extra configuration added to the `--conf` argument.
+    # -- (map[string]string \| map[string][]string) Extra configuration added to the `--conf` option.
     # If `extraConf` is not empty, it takes precedence.
+    # Ref: https://slurm.schedmd.com/slurmd.html#OPT_conf-%3Cnode-parameters%3E
     # Ref: https://slurm.schedmd.com/slurm.conf.html#SECTION_NODE-CONFIGURATION
     extraConfMap: {}
       # Features: []
@@ -713,7 +723,7 @@ nodesets:
       # -- The pod resource limits and requests.
       # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-requests-and-limits-of-pod-and-container
       resources: {}
-        # requests:
+        # limits:
         #   cpu: 1
         #   memory: 1Gi
       # -- Additional initContainers for the pod.
